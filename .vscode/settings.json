@@ -1,0 +1,23 @@
+{
+  "editor.tabSize": 2,
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 120,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true,
+  },
+
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false,
+
+  // eslint
+  "eslint.run": "onSave",
+  "eslint.packageManager": "yarn",
+  "eslint.options": {
+    "configFile": ".eslintrc.js"
+  },
+  // prettier
+  "prettier.printWidth": 120
+}
