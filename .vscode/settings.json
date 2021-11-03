@@ -16,7 +16,7 @@
   "eslint.run": "onSave",
   "eslint.packageManager": "yarn",
   "eslint.options": {
-    "configFile": ".eslintrc.js"
+    "overrideConfigFile": ".eslintrc.js"
   },
   // prettier
   "prettier.printWidth": 120

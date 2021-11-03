@@ -9,6 +9,6 @@ interface Window {
 }
 
 declare global {
-  var AttachmentCMS: typeof CMS
-  var AttachmentConfig: AttachmentConfigType
+  const AttachmentCMS: typeof CMS
+  const AttachmentConfig: AttachmentConfigType
 }
