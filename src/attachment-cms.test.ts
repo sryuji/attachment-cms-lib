@@ -1,7 +1,7 @@
 import { AttachmentCMS } from './attachment-cms'
 import fetch, { enableFetchMocks } from 'jest-fetch-mock'
 import { attachWindowMock, restoreWindow } from '../test/modules/window-mock'
-import { ContentDto } from '../types/content.dto'
+import { ContentDto } from '../src/types/content.dto'
 
 enableFetchMocks()
 

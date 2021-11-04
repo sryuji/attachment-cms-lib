@@ -1,4 +1,4 @@
-import { ContentDto } from '../types/content.dto'
+import { ContentDto } from './types/content.dto'
 
 export class AttachmentCMS {
   private url: string

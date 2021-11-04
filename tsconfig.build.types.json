@@ -9,7 +9,7 @@
     "sourceMap": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "noEmit": true,
+    // "noEmit": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -21,7 +21,13 @@
     "removeComments": true,
     "types": ["vite/client", "@types/jest"],
     "typeRoots": ["src/types", "./node_modules/@types"],
+
+    // for definition
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "declarationDir": "./types",
   },
-  "include": ["./src", "./test"],
+  "include": ["./src"],
   "exclude": ["**/*.test.ts"]
 }

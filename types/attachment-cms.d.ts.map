@@ -1,0 +1,1 @@
+{"version":3,"file":"attachment-cms.d.ts","sourceRoot":"","sources":["../src/attachment-cms.ts"],"names":[],"mappings":"AAEA,qBAAa,aAAa;IACxB,OAAO,CAAC,GAAG,CAAQ;IACnB,OAAO,CAAC,KAAK,CAAQ;IACrB,OAAO,CAAC,QAAQ,CAAc;gBAElB,KAAK,EAAE,MAAM,EAAE,OAAO,CAAC,EAAE,MAAM;IAYrC,GAAG;YAaK,aAAa;IAO3B,OAAO,CAAC,sBAAsB;IAa9B,OAAO,CAAC,cAAc;IAmBtB,OAAO,CAAC,aAAa;CA0BtB"}
