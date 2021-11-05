@@ -33,8 +33,8 @@ export class AttachmentCMS {
   private async fetchContents() {
     const url = `${this.url}?token=${this.token}`
     const response = await fetch(url)
-    const data: Record<string, ContentDto[]> = await response.json()
-    this.contents = this.extractMatchedContents(data)
+    const data: Record<'contents', Record<string, ContentDto[]>> = await response.json()
+    this.contents = this.extractMatchedContents(data.contents)
   }
 
   private extractMatchedContents(data: Record<string, ContentDto[]>): ContentDto[] {
@@ -52,7 +52,6 @@ export class AttachmentCMS {
   // https://developer.mozilla.org/ja/docs/Web/API/MutationRecord
   private observeElement() {
     const bodyElement: HTMLBodyElement = document.getElementsByTagName('body')[0]
-    console.log(bodyElement)
     // document.querySelector('body')
     const mo = new MutationObserver((mutationsList: MutationRecord[]) => {
       console.log(mutationsList)
