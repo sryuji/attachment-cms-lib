@@ -1,5 +1,6 @@
 import { ContentDto } from './types/content.dto'
 import { AttachmentConfigType, ContentsPerPath, ContentsResponse } from './types/global'
+import throttle from 'lodash.throttle'
 
 export class AttachmentCMS {
   private url: string
@@ -75,7 +76,9 @@ export class AttachmentCMS {
       return
     }
 
-    const mo = new MutationObserver(() => this.applyContents())
+    const mo = new MutationObserver(() => {
+      throttle(this.applyContents, 1000)
+    })
     const config: MutationObserverInit = {
       attributes: false,
       attributeOldValue: false,
@@ -89,29 +92,58 @@ export class AttachmentCMS {
 
   private applyContents() {
     this.contents.forEach((r) => {
-      const el = document.querySelector(r.selector)
+      const el: Element = document.querySelector(r.selector)
       if (!el) return
+
+      if (r.content && !r.content.startsWith('<')) {
+        r.content = `<div>${r.content}</div>`
+      }
       switch (r.action) {
         case 'innerHTML':
+          if (el.innerHTML === r.content) return
           el.innerHTML = r.content
           break
         case 'remove':
           el.parentNode.removeChild(el)
           break
         case 'insertBefore':
-          el.insertAdjacentHTML('beforebegin', r.content)
+          this.insertBeforeElement(el, r.content)
           break
         case 'insertChildAfterBegin':
-          el.insertAdjacentHTML('afterbegin', r.content)
+          this.insertFirstChildToElement(el, r.content)
           break
         case 'insertChildBeforeEnd':
-          el.insertAdjacentHTML('beforeend', r.content)
+          this.insertLastChildToElement(el, r.content)
           break
         case 'insertAfter':
-          el.insertAdjacentHTML('afterend', r.content)
+          this.insertAfterElement(el, r.content)
           break
       }
     })
+  }
+
+  private insertBeforeElement(el: Element, content: string): void {
+    const prevNode = el.previousSibling as Element
+    if (prevNode && prevNode.innerHTML === content) return
+    el.insertAdjacentHTML('beforebegin', content)
+  }
+
+  private insertFirstChildToElement(el: Element, content: string): void {
+    const firstChild = el.firstChild as Element
+    if (firstChild && firstChild.innerHTML === content) return
+    el.insertAdjacentHTML('afterbegin', content)
+  }
+
+  private insertLastChildToElement(el: Element, content: string): void {
+    const lastChild = el.lastChild as Element
+    if (lastChild && lastChild.innerHTML === content) return
+    el.insertAdjacentHTML('beforeend', content)
+  }
+
+  private insertAfterElement(el: Element, content: string): void {
+    const lastChild = el.lastChild as Element
+    if (lastChild && lastChild.innerHTML === content) return
+    el.insertAdjacentHTML('afterend', content)
   }
 
   private observeHistoryState() {

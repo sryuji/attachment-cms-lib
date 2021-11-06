@@ -11,6 +11,10 @@ export declare class AttachmentCMS {
     private extractMatchedContents;
     private observeElement;
     private applyContents;
+    private insertBeforeElement;
+    private insertFirstChildToElement;
+    private insertLastChildToElement;
+    private insertAfterElement;
     private observeHistoryState;
 }
 //# sourceMappingURL=attachment-cms.d.ts.map
