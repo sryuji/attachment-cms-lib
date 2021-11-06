@@ -19,7 +19,7 @@ export class AttachmentCMS {
   constructor(options: AttachmentConfigType) {
     if (!options || !options.token) throw new Error('Required token.')
 
-    const baseUrl = (options && options.baseUrl) || 'https://attachment-cms.dev'
+    const baseUrl = (options && options.baseUrl) || 'https://api.attachment-cms.dev'
     const urlParams = new URLSearchParams(window.location.search)
     const queryToken = urlParams.get('token')
     if (queryToken) {
