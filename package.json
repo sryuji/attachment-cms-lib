@@ -1,6 +1,7 @@
 {
   "name": "attachment-cms-lib",
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "author": "sryuji",
   "license": "UNLICENSED",
   "engines": {
     "node": "14.x"
