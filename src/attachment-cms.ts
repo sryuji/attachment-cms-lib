@@ -1,43 +1,61 @@
 import { ContentDto } from './types/content.dto'
+import { AttachmentConfigType, ContentsPerPath, ContentsResponse } from './types/global'
 
 export class AttachmentCMS {
   private url: string
   private token: string
   private contents: ContentDto[]
+  private id: string
+  private contentsResponse: ContentsResponse
 
-  constructor(token: string, baseUrl?: string) {
+  /**
+   *
+   * @param {Object} options
+   * @param {string} options.token Scope単位に発行されるtoken
+   * @param {string} options.baseUrl
+   * @param {string} options.id html tagのid. このtag配下で機能が有効になる. 未指定ではbody tag.
+   */
+  constructor(options: AttachmentConfigType) {
+    if (!options || !options.token) throw new Error('Required token.')
+
+    const baseUrl = (options && options.baseUrl) || 'https://attachment-cms.dev'
     const urlParams = new URLSearchParams(window.location.search)
     const queryToken = urlParams.get('token')
     if (queryToken) {
       this.token = queryToken
-      this.url = baseUrl ? `${baseUrl}/contents/limited` : 'https://attachment-cms.dev/contents/limited'
+      this.url = `${baseUrl}/contents/limited`
     } else {
-      this.token = token
-      this.url = baseUrl ? `${baseUrl}/contents` : 'https://attachment-cms.dev/contents'
+      this.token = options.token
+      this.url = `${baseUrl}/contents`
     }
+    this.id = (options && options.id) || null
   }
 
   async run() {
-    await this.fetchContents()
+    this.contentsResponse = await this.fetchContents()
+    this.contents = this.extractMatchedContents(this.contentsResponse.contents)
+
     if (document.readyState === 'loading') {
       window.addEventListener('DOMContentLoaded', () => {
         this.applyContents()
         this.observeElement()
+        this.observeHistoryState()
       })
     } else {
       this.applyContents()
       this.observeElement()
+      this.observeHistoryState()
     }
   }
 
-  private async fetchContents() {
+  private async fetchContents(): Promise<ContentsResponse> {
     const url = `${this.url}?token=${this.token}`
     const response = await fetch(url)
-    const data: Record<'contents', Record<string, ContentDto[]>> = await response.json()
-    this.contents = this.extractMatchedContents(data.contents)
+    return response.json()
   }
 
-  private extractMatchedContents(data: Record<string, ContentDto[]>): ContentDto[] {
+  private extractMatchedContents(data: ContentsPerPath): ContentDto[] {
+    if (!data) return []
     const pathList = Object.keys(data)
     const currentPath = window.location.pathname
     return pathList
@@ -51,12 +69,13 @@ export class AttachmentCMS {
 
   // https://developer.mozilla.org/ja/docs/Web/API/MutationRecord
   private observeElement() {
-    const bodyElement: HTMLBodyElement = document.getElementsByTagName('body')[0]
-    // document.querySelector('body')
-    const mo = new MutationObserver((mutationsList: MutationRecord[]) => {
-      console.log(mutationsList)
-      this.applyContents()
-    })
+    const el: HTMLElement = this.id ? document.getElementById(this.id) : document.getElementsByTagName('body')[0]
+    if (!el) {
+      this.id && console.warn(`No exists html element. id: ${this.id}`)
+      return
+    }
+
+    const mo = new MutationObserver(() => this.applyContents())
     const config: MutationObserverInit = {
       attributes: false,
       attributeOldValue: false,
@@ -65,7 +84,7 @@ export class AttachmentCMS {
       childList: true,
       subtree: true,
     }
-    mo.observe(bodyElement, config)
+    mo.observe(el, config)
   }
 
   private applyContents() {
@@ -93,5 +112,12 @@ export class AttachmentCMS {
           break
       }
     })
+  }
+
+  private observeHistoryState() {
+    window.onpopstate = () => {
+      this.contents = this.extractMatchedContents(this.contentsResponse.contents)
+      this.applyContents()
+    }
   }
 }

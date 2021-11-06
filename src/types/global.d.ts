@@ -1,6 +1,15 @@
 import { AttachmentCMS as CMS } from '../attachment-cms'
+import { ContentDto } from './content.dto'
 
-type AttachmentConfigType = Record<'token' | 'url', string>
+type AttachmentConfigType = {
+  token: string
+  baseUrl?: string
+  id?: string
+}
+type ContentsPerPath = Record<string, ContentDto[]>
+type ContentsResponse = {
+  contents: ContentsPerPath
+}
 
 declare global {
   interface Window {

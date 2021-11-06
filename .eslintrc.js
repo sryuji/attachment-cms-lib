@@ -12,7 +12,8 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   rules: {
-    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    // NOTE: errorならError objectを利用. infoはdebug時に利用しがちなためす本番では禁止
+    'no-console': process.env.NODE_ENV === 'production' ? ['error', { allow: ['warn'] }] : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'require-jsdoc': 'off',
     // importしたものを型宣言だけに利用してる場合に許可されるように設定
