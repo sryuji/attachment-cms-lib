@@ -33,6 +33,8 @@ export class AttachmentCMS {
   }
 
   async run() {
+    if (typeof window === 'undefined') return
+
     this.contentsResponse = await this.fetchContents()
     this.contents = this.extractMatchedContents(this.contentsResponse.contents)
 
