@@ -3,8 +3,9 @@ import { AttachmentConfigType, ContentsPerPath, ContentsResponse } from './types
 import throttle from 'lodash.throttle'
 
 export class AttachmentCMS {
-  private url: string
-  private token: string
+  private baseUrl: string
+  private defaultToken: string
+  private queryToken: string
   private contents: ContentDto[]
   private id: string
   private contentsResponse: ContentsResponse
@@ -17,24 +18,28 @@ export class AttachmentCMS {
    * @param {string} options.id html tagのid. このtag配下で機能が有効になる. 未指定ではbody tag.
    */
   constructor(options: AttachmentConfigType) {
-    if (!options || !options.token) throw new Error('Required token.')
-
-    const baseUrl = (options && options.baseUrl) || 'https://api.attachment-cms.dev'
-    const urlParams = new URLSearchParams(window.location.search)
-    const queryToken = urlParams.get('token')
-    if (queryToken) {
-      this.token = queryToken
-      this.url = `${baseUrl}/contents/limited`
-    } else {
-      this.token = options.token
-      this.url = `${baseUrl}/contents`
-    }
+    if (!options || !options.token) throw new Error('Required acmst query parameter as token.')
+    this.baseUrl = (options && options.baseUrl) || 'https://api.attachment-cms.dev'
+    this.defaultToken = options.token
     this.id = (options && options.id) || null
   }
 
-  async run() {
-    if (typeof window === 'undefined') return
+  get isClient(): boolean {
+    return typeof window === 'undefined'
+  }
 
+  get url() {
+    return this.queryToken ? `${this.baseUrl}/contents/limited` : `${this.baseUrl}/contents`
+  }
+
+  get token() {
+    return this.queryToken || this.defaultToken
+  }
+
+  async run() {
+    if (this.isClient) return
+
+    this.queryToken = this.getQueryToken()
     this.contentsResponse = await this.fetchContents()
     this.contents = this.extractMatchedContents(this.contentsResponse.contents)
 
@@ -49,6 +54,16 @@ export class AttachmentCMS {
       this.observeElement()
       this.observeHistoryState()
     }
+  }
+
+  private getQueryToken(): string {
+    let qtoken = sessionStorage.getItem('acmst')
+    if (qtoken) return qtoken
+
+    const urlParams = new URLSearchParams(window.location.search)
+    qtoken = urlParams.get('acmst')
+    if (qtoken) sessionStorage.setItem('acmst', qtoken)
+    return qtoken
   }
 
   private async fetchContents(): Promise<ContentsResponse> {

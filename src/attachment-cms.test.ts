@@ -42,11 +42,11 @@ describe('AttachmentCMS', () => {
       expect(target.token).toEqual(token)
     })
 
-    test('ブラウザのURLにtoken指定されていない場合', () => {
+    test('ブラウザのURLにtoken指定している場合', () => {
       const baseUrl = 'http://localhost:3000'
       const token = 'token'
       const querytoken = 'querytoken'
-      attachWindowMock(`http://localhost:3002?token=${querytoken}`)
+      attachWindowMock(`http://localhost:3002?acmst=${querytoken}`)
       const target: any = new AttachmentCMS({ token, baseUrl })
       expect(target.url).toEqual(`${baseUrl}/contents/limited`)
       expect(target.token).toEqual(querytoken)
