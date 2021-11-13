@@ -1,12 +1,18 @@
 import { AttachmentConfigType } from './types/global';
 export declare class AttachmentCMS {
-    private url;
-    private token;
+    private baseUrl;
+    private defaultToken;
+    private queryToken;
     private contents;
     private id;
     private contentsResponse;
     constructor(options: AttachmentConfigType);
+    get isClient(): boolean;
+    get url(): string;
+    get token(): string;
     run(): Promise<void>;
+    private getQueryToken;
+    private showLimitedMode;
     private fetchContents;
     private extractMatchedContents;
     private observeElement;

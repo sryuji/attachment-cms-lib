@@ -40,6 +40,7 @@ export class AttachmentCMS {
     if (this.isClient) return
 
     this.queryToken = this.getQueryToken()
+    this.showLimitedMode()
     this.contentsResponse = await this.fetchContents()
     this.contents = this.extractMatchedContents(this.contentsResponse.contents)
 
@@ -64,6 +65,16 @@ export class AttachmentCMS {
     qtoken = urlParams.get('acmst')
     if (qtoken) sessionStorage.setItem('acmst', qtoken)
     return qtoken
+  }
+
+  private showLimitedMode(): void {
+    if (!this.queryToken) return
+
+    const el = document.getElementsByTagName('body')[0]
+    const content = `<div style="position: fixed; bottom: 20px; right: 30px;background-color: #46F28D; box-shadow: 0 10px 25px 0 rgba(0, 0, 0, .5); border-radius: 6px;">
+    <p style="padding: 10px; font-weight: 600;">限定公開<br/>by attachment CMS</p>
+    </div>`
+    this.insertLastChildToElement(el, content)
   }
 
   private async fetchContents(): Promise<ContentsResponse> {
@@ -166,6 +177,7 @@ export class AttachmentCMS {
   private observeHistoryState() {
     window.onpopstate = () => {
       this.contents = this.extractMatchedContents(this.contentsResponse.contents)
+      console.log('observeHistoryState', this.contents)
       this.applyContents()
     }
   }
