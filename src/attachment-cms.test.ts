@@ -48,6 +48,9 @@ describe('AttachmentCMS', () => {
       const querytoken = 'querytoken'
       attachWindowMock(`http://localhost:3002?acmst=${querytoken}`)
       const target: any = new AttachmentCMS({ token, baseUrl })
+      expect(target.url).toEqual(`${baseUrl}/contents`)
+
+      target.queryToken = target.getQueryToken()
       expect(target.url).toEqual(`${baseUrl}/contents/limited`)
       expect(target.token).toEqual(querytoken)
       restoreWindow()

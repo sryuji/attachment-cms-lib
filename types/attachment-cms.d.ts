@@ -6,6 +6,7 @@ export declare class AttachmentCMS {
     private contents;
     private id;
     private contentsResponse;
+    private throttleApplyContents;
     constructor(options: AttachmentConfigType);
     get isClient(): boolean;
     get url(): string;

@@ -1,6 +1,7 @@
 import { ContentDto } from './types/content.dto'
 import { AttachmentConfigType, ContentsPerPath, ContentsResponse } from './types/global'
 import throttle from 'lodash.throttle'
+import { extendHistoryEvent } from './lib/history'
 
 export class AttachmentCMS {
   private baseUrl: string
@@ -9,6 +10,7 @@ export class AttachmentCMS {
   private contents: ContentDto[]
   private id: string
   private contentsResponse: ContentsResponse
+  private throttleApplyContents: Function
 
   /**
    *
@@ -22,6 +24,7 @@ export class AttachmentCMS {
     this.baseUrl = (options && options.baseUrl) || 'https://api.attachment-cms.dev'
     this.defaultToken = options.token
     this.id = (options && options.id) || null
+    this.throttleApplyContents = throttle(this.applyContents, 200)
   }
 
   get isClient(): boolean {
@@ -101,21 +104,19 @@ export class AttachmentCMS {
     const el: HTMLElement = this.id ? document.getElementById(this.id) : document.getElementsByTagName('body')[0]
     if (!el) {
       this.id && console.warn(`No exists html element. id: ${this.id}`)
-      return
+      throw new Error('No found observed element.')
     }
 
     const mo = new MutationObserver(() => {
-      throttle(this.applyContents, 1000)
+      this.throttleApplyContents()
     })
     const config: MutationObserverInit = {
       attributes: false,
-      attributeOldValue: false,
       characterData: true,
-      characterDataOldValue: true,
       childList: true,
       subtree: true,
     }
-    mo.observe(el, config)
+    mo.observe(document, config)
   }
 
   private applyContents() {
@@ -175,10 +176,12 @@ export class AttachmentCMS {
   }
 
   private observeHistoryState() {
-    window.onpopstate = () => {
+    extendHistoryEvent()
+    const callback = () => {
       this.contents = this.extractMatchedContents(this.contentsResponse.contents)
-      console.log('observeHistoryState', this.contents)
-      this.applyContents()
     }
+    window.addEventListener('popstate', callback)
+    window.addEventListener('pushstate', callback)
+    window.addEventListener('replacestate', callback)
   }
 }
