@@ -5,6 +5,7 @@ type AttachmentConfigType = {
   token: string
   baseUrl?: string
   id?: string
+  throttleMs?: number
 }
 type ContentsPerPath = Record<string, ContentDto[]>
 type ContentsResponse = {
