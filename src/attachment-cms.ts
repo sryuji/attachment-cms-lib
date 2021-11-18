@@ -89,9 +89,10 @@ export class AttachmentCMS {
   private extractMatchedContents(data: ContentsPerPath): ContentDto[] {
     if (!data) return []
     const pathList = Object.keys(data)
-    const currentPath = window.location.pathname
+    const currentPath = window.location.pathname.replace(/\/$/, '')
     return pathList
       .filter((path) => {
+        path = path.replace(/\/$/, '')
         const regex = new RegExp(String.raw`^${path}$`, 'i')
         return currentPath.match(regex)
       })
