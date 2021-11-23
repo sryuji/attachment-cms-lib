@@ -3,6 +3,8 @@ import { AttachmentConfigType, ContentsPerPath, ContentsResponse } from './types
 import throttle from 'lodash.throttle'
 import { extendHistoryEvent } from './lib/history'
 
+export const BASE_HTML_ID = 'acms-content'
+
 export class AttachmentCMS {
   private baseUrl: string
   private defaultToken: string
@@ -74,7 +76,7 @@ export class AttachmentCMS {
     if (!this.queryToken) return
 
     const el = document.getElementsByTagName('body')[0]
-    const content = `<div style="position: fixed; bottom: 20px; right: 30px;background-color: #46F28D; box-shadow: 0 10px 25px 0 rgba(0, 0, 0, .5); border-radius: 6px;">
+    const content = `<div id="${BASE_HTML_ID}-limited-mark" style="position: fixed; bottom: 20px; right: 30px;background-color: #46F28D; box-shadow: 0 10px 25px 0 rgba(0, 0, 0, .5); border-radius: 6px;">
     <p style="padding: 10px; font-weight: 600;">限定公開<br/>by attachment CMS</p>
     </div>`
     this.insertLastChildToElement(el, content)
@@ -122,57 +124,55 @@ export class AttachmentCMS {
 
   private applyContents() {
     this.contents.forEach((r) => {
-      const el: Element = document.querySelector(r.selector)
-      if (!el) return
+      const target: Element = document.querySelector(r.selector)
+      if (!target) return
 
-      if (r.content && !r.content.startsWith('<')) {
-        r.content = `<div>${r.content}</div>`
-      }
+      const htmlId = `${BASE_HTML_ID}-${r.id}`
+      const processed = document.getElementById(htmlId)
+      if (processed) return
+
       switch (r.action) {
         case 'innerHTML':
-          if (el.innerHTML === r.content) return
-          el.innerHTML = r.content
+          target.innerHTML = r.content
           break
         case 'remove':
-          el.parentNode.removeChild(el)
+          this.removeElement(target, htmlId)
           break
         case 'insertBefore':
-          this.insertBeforeElement(el, r.content)
+          this.insertBeforeElement(target, r.content)
           break
         case 'insertChildAfterBegin':
-          this.insertFirstChildToElement(el, r.content)
+          this.insertFirstChildToElement(target, r.content)
           break
         case 'insertChildBeforeEnd':
-          this.insertLastChildToElement(el, r.content)
+          this.insertLastChildToElement(target, r.content)
           break
         case 'insertAfter':
-          this.insertAfterElement(el, r.content)
+          this.insertAfterElement(target, r.content)
           break
       }
     })
   }
 
+  private removeElement(el: Element, htmlId: string): void {
+    // NOTE: 実際に削除すると、次のapplyContents時に別のElementがselectされる可能性が残るため、DON構成が変わらないようにdisplay: noneなinnnerHTMLを挿入してmarker代わりにし対処
+    el.id = htmlId
+    el.setAttribute('style', 'display: none;')
+  }
+
   private insertBeforeElement(el: Element, content: string): void {
-    const prevNode = el.previousSibling as Element
-    if (prevNode && prevNode.innerHTML === content) return
     el.insertAdjacentHTML('beforebegin', content)
   }
 
   private insertFirstChildToElement(el: Element, content: string): void {
-    const firstChild = el.firstChild as Element
-    if (firstChild && firstChild.innerHTML === content) return
     el.insertAdjacentHTML('afterbegin', content)
   }
 
   private insertLastChildToElement(el: Element, content: string): void {
-    const lastChild = el.lastChild as Element
-    if (lastChild && lastChild.innerHTML === content) return
     el.insertAdjacentHTML('beforeend', content)
   }
 
   private insertAfterElement(el: Element, content: string): void {
-    const lastChild = el.lastChild as Element
-    if (lastChild && lastChild.innerHTML === content) return
     el.insertAdjacentHTML('afterend', content)
   }
 

@@ -58,7 +58,7 @@ describe('AttachmentCMS', () => {
   })
 
   describe('#fetchContents', () => {
-    const data = { contents: { '/news': [{ selector: '', content: '', action: '' }] } }
+    const data = { contents: { '/news': [{ id: 1, selector: '', content: '', action: '' }] } }
     beforeEach(() => {
       fetch.mockResponseOnce(JSON.stringify(data))
     })
@@ -77,10 +77,10 @@ describe('AttachmentCMS', () => {
       restoreWindow()
     })
     const data: ContentsPerPath = {
-      '/news': [{ selector: '', content: '', action: '' }],
-      '/news/1': [{ selector: '', content: '', action: '' }],
-      '/news/15': [{ selector: '', content: '<span>テスト</span>', action: '' }],
-      '/news/20': [{ selector: '', content: '', action: '' }],
+      '/news': [{ id: 1, selector: '', content: '', action: '' }],
+      '/news/1': [{ id: 2, selector: '', content: '', action: '' }],
+      '/news/15': [{ id: 3, selector: '', content: '<span>テスト</span>', action: '' }],
+      '/news/20': [{ id: 4, selector: '', content: '', action: '' }],
     }
 
     test('マッチするpathが１つある', () => {
@@ -90,8 +90,8 @@ describe('AttachmentCMS', () => {
     })
     test('マッチするpathが２つある', () => {
       data['/news/15'] = [
-        { selector: '', content: '<span>テスト</span>', action: '' },
-        { selector: '', content: '<span>テスト2</span>', action: '' },
+        { id: 5, selector: '', content: '<span>テスト</span>', action: '' },
+        { id: 6, selector: '', content: '<span>テスト2</span>', action: '' },
       ]
       const contents = service.extractMatchedContents(data)
       expect(contents.length).toEqual(2)
@@ -108,7 +108,7 @@ describe('AttachmentCMS', () => {
   describe('#applyContents', () => {
     test('対象Elementがない', () => {
       attachWindowMock(`http://localhost:3002/news/15`, `<div><div id="description"></div></div>`)
-      service.contents = [{ selector: '#description > p', content: '<span>テスト</span>', action: 'innerHTML' }]
+      service.contents = [{ id: 1, selector: '#description > p', content: '<span>テスト</span>', action: 'innerHTML' }]
       service.applyContents()
       expect(document.body.innerHTML).toEqual(`<div><div id="description"></div></div>`)
       restoreWindow()
@@ -125,45 +125,80 @@ describe('AttachmentCMS', () => {
       })
 
       test('action is innerHTML', () => {
-        service.contents = [{ selector: '#description > p', content: '<span>テスト</span>', action: 'innerHTML' }]
-        service.applyContents()
-        expect(document.body.innerHTML).toEqual(`<div><div id="description"><p><span>テスト</span></p></div></div>`)
-      })
-      test('action is remove', () => {
-        service.contents = [{ selector: '#description > p', content: null, action: 'remove' }]
-        service.applyContents()
-        expect(document.body.innerHTML).toEqual(`<div><div id="description"></div></div>`)
-      })
-      test('action is insertBefore', () => {
-        service.contents = [{ selector: '#description > p', content: '<span>テスト</span>', action: 'insertBefore' }]
+        service.contents = [
+          {
+            id: 1,
+            selector: '#description > p',
+            content: '<span id="acms-content-1">テスト</span>',
+            action: 'innerHTML',
+          },
+        ]
         service.applyContents()
         expect(document.body.innerHTML).toEqual(
-          `<div><div id="description"><span>テスト</span><p><span>1</span><span>999</span></p></div></div>`,
+          `<div><div id="description"><p><span id="acms-content-1">テスト</span></p></div></div>`,
+        )
+      })
+      test('action is remove', () => {
+        service.contents = [{ id: 1, selector: '#description > p', content: null, action: 'remove' }]
+        service.applyContents()
+        expect(document.body.innerHTML).toEqual(
+          `<div><div id="description"><p id="acms-content-1" style="display: none;"><span>1</span><span>999</span></p></div></div>`,
+        )
+      })
+      test('action is insertBefore', () => {
+        service.contents = [
+          {
+            id: 1,
+            selector: '#description > p',
+            content: '<span id="acms-content-1">テスト</span>',
+            action: 'insertBefore',
+          },
+        ]
+        service.applyContents()
+        expect(document.body.innerHTML).toEqual(
+          `<div><div id="description"><span id="acms-content-1">テスト</span><p><span>1</span><span>999</span></p></div></div>`,
         )
       })
       test('action is insertChildAfterBegin', () => {
         service.contents = [
-          { selector: '#description > p', content: '<span>テスト</span>', action: 'insertChildAfterBegin' },
+          {
+            id: 1,
+            selector: '#description > p',
+            content: '<span id="acms-content-1">テスト</span>',
+            action: 'insertChildAfterBegin',
+          },
         ]
         service.applyContents()
         expect(document.body.innerHTML).toEqual(
-          `<div><div id="description"><p><span>テスト</span><span>1</span><span>999</span></p></div></div>`,
+          `<div><div id="description"><p><span id="acms-content-1">テスト</span><span>1</span><span>999</span></p></div></div>`,
         )
       })
       test('action is insertChildBeforeEnd', () => {
         service.contents = [
-          { selector: '#description > p', content: '<span>テスト</span>', action: 'insertChildBeforeEnd' },
+          {
+            id: 1,
+            selector: '#description > p',
+            content: '<span id="acms-content-1">テスト</span>',
+            action: 'insertChildBeforeEnd',
+          },
         ]
         service.applyContents()
         expect(document.body.innerHTML).toEqual(
-          `<div><div id="description"><p><span>1</span><span>999</span><span>テスト</span></p></div></div>`,
+          `<div><div id="description"><p><span>1</span><span>999</span><span id="acms-content-1">テスト</span></p></div></div>`,
         )
       })
       test('action is insertAfter', () => {
-        service.contents = [{ selector: '#description > p', content: '<span>テスト</span>', action: 'insertAfter' }]
+        service.contents = [
+          {
+            id: 1,
+            selector: '#description > p',
+            content: '<span id="acms-content-1">テスト</span>',
+            action: 'insertAfter',
+          },
+        ]
         service.applyContents()
         expect(document.body.innerHTML).toEqual(
-          `<div><div id="description"><p><span>1</span><span>999</span></p><span>テスト</span></div></div>`,
+          `<div><div id="description"><p><span>1</span><span>999</span></p><span id="acms-content-1">テスト</span></div></div>`,
         )
       })
     })

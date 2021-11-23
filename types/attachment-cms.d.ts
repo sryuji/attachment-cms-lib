@@ -1,4 +1,5 @@
 import { AttachmentConfigType } from './types/global';
+export declare const BASE_HTML_ID = "acms-content";
 export declare class AttachmentCMS {
     private baseUrl;
     private defaultToken;
@@ -18,6 +19,7 @@ export declare class AttachmentCMS {
     private extractMatchedContents;
     private observeElement;
     private applyContents;
+    private removeElement;
     private insertBeforeElement;
     private insertFirstChildToElement;
     private insertLastChildToElement;

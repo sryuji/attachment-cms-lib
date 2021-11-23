@@ -1,5 +1,6 @@
 export declare class ContentDto {
-    selector: string;
-    content: string;
-    action: string;
+  id: number
+  selector: string
+  content: string
+  action: string
 }
