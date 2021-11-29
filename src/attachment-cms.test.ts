@@ -77,10 +77,10 @@ describe('AttachmentCMS', () => {
       restoreWindow()
     })
     const data: ContentsPerPath = {
-      '/news': [{ id: 1, selector: '', content: '', action: '' }],
-      '/news/1': [{ id: 2, selector: '', content: '', action: '' }],
-      '/news/15': [{ id: 3, selector: '', content: '<span>テスト</span>', action: '' }],
-      '/news/20': [{ id: 4, selector: '', content: '', action: '' }],
+      '/news': [{ id: 1, type: 'ReleaseContentHistory', selector: '', content: '', action: '' }],
+      '/news/1': [{ id: 2, type: 'ReleaseContentHistory', selector: '', content: '', action: '' }],
+      '/news/15': [{ id: 3, type: 'ReleaseContentHistory', selector: '', content: '<span>テスト</span>', action: '' }],
+      '/news/20': [{ id: 4, type: 'ReleaseContentHistory', selector: '', content: '', action: '' }],
     }
 
     test('マッチするpathが１つある', () => {
@@ -90,13 +90,13 @@ describe('AttachmentCMS', () => {
     })
     test('マッチするpathが２つある', () => {
       data['/news/15'] = [
-        { id: 5, selector: '', content: '<span>テスト</span>', action: '' },
-        { id: 6, selector: '', content: '<span>テスト2</span>', action: '' },
+        { id: 5, type: 'ReleaseContentHistory', selector: '', content: '<span>テスト</span>', action: '' },
+        { id: 6, type: 'PluginContentHistory', selector: '', content: '<span>テスト2</span>', action: '' },
       ]
       const contents = service.extractMatchedContents(data)
       expect(contents.length).toEqual(2)
-      expect(contents[0].content).toEqual('<span>テスト</span>')
-      expect(contents[1].content).toEqual('<span>テスト2</span>')
+      expect(contents[0].content).toEqual('<span>テスト2</span>')
+      expect(contents[1].content).toEqual('<span>テスト</span>')
     })
     test('マッチするpathがない', () => {
       delete data['/news/15']

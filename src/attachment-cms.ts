@@ -4,6 +4,7 @@ import throttle from 'lodash.throttle'
 import { extendHistoryEvent } from './lib/history'
 
 export const BASE_HTML_ID = 'acms-content'
+const CONTENT_TYPES = ['PluginContentHistory', 'ReleaseContentHistory']
 
 export class AttachmentCMS {
   private baseUrl: string
@@ -100,6 +101,13 @@ export class AttachmentCMS {
       })
       .map((path) => data[path])
       .flat()
+      .sort((x, y) => this.calcContentIndex(x.type) - this.calcContentIndex(y.type))
+  }
+
+  private calcContentIndex(type: string) {
+    let index = CONTENT_TYPES.indexOf(type)
+    index = index === -1 ? 999 : index
+    return index
   }
 
   // https://developer.mozilla.org/ja/docs/Web/API/MutationRecord
