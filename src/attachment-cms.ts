@@ -30,7 +30,7 @@ export class AttachmentCMS {
     this.throttleApplyContents = throttle(this.applyContents, (options && options.throttleMs) || 200)
   }
 
-  get isClient(): boolean {
+  get isServer(): boolean {
     return typeof window === 'undefined'
   }
 
@@ -42,8 +42,8 @@ export class AttachmentCMS {
     return this.queryToken || this.defaultToken
   }
 
-  async run() {
-    if (this.isClient) return
+  public async run() {
+    if (this.isServer) return
 
     this.queryToken = this.getQueryToken()
     this.showLimitedMode()
@@ -61,6 +61,26 @@ export class AttachmentCMS {
       this.observeElement()
       this.observeHistoryState()
     }
+  }
+
+  /**
+   * SSG利用時、取得したresponse dataを受け渡す
+   * @param {ContentsResponse} data
+   */
+  public load(data: ContentsResponse) {
+    if (!data || !data.contents) throw new Error('Need 1 argument. Please pass response data.')
+    this.contentsResponse = data
+  }
+
+  /**
+   *
+   * SSG利用時、load後にID指定で値を取得する
+   * @param {number} id
+   * @return {ContentDto}
+   */
+  public pick(id: number) {
+    const contents = Object.values(this.contentsResponse.contents).flat()
+    return contents.find((content) => content.id === id)
   }
 
   private getQueryToken(): string {
